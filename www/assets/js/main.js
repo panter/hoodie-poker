@@ -50,6 +50,10 @@ var Deck = React.createClass({
 });
 
 var Table = React.createClass({
+  restartRound: function(){
+    hoodie.store.updateAll('estimates', {value: null})
+  },
+
   propTypes: {
     estimates: React.PropTypes.array
   },
@@ -59,7 +63,12 @@ var Table = React.createClass({
       return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} />
     });
 
-    return <div className="table">{playedCards}</div>
+    return <div className="table">
+      <div className="table-header">
+        <button className="button-restart" onClick={this.restartRound}>Restart</button>
+      </div>
+      <div>{playedCards}</div>
+    </div>
   }
 });
 
