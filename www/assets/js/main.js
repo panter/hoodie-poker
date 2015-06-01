@@ -29,8 +29,7 @@ var User = React.createClass({
 var PlayedCard = React.createClass({
   propTypes: {
     value: React.PropTypes.number,
-    userName: React.PropTypes.string,
-    isVisible: React.PropTypes.boolean
+    userName: React.PropTypes.string
   },
 
   render: function(){
@@ -58,12 +57,16 @@ var Table = React.createClass({
 
   propTypes: {
     estimates: React.PropTypes.array,
-    currentUserName: React.PropTypes.string
+    currentUserName: React.PropTypes.string,
   },
 
   render: function(){
+    var isFinished = this.props.estimates.every(function(playedCard){
+      return playedCard.value > 0
+    });
+
     var playedCards = this.props.estimates.map(function(playedCard){
-      var isVisible = this.props.currentUserName == playedCard.id;
+      var isVisible = isFinished || this.props.currentUserName == playedCard.id;
 
       return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} isVisible={isVisible} />
     }.bind(this));
