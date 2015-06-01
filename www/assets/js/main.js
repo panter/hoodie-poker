@@ -62,7 +62,7 @@ var Table = React.createClass({
 
   render: function(){
     var playedCards = this.props.estimates.map(function(playedCard){
-      return <PlayedCard value={playedCard.value} userName={playedCard.id} />
+      return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} />
     });
 
     return <div className="table">{playedCards}</div>
