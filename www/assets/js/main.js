@@ -131,12 +131,17 @@ var PokerApp = React.createClass({
   },
 
   render: function(){
-    return <div>
-      <h3>Hello {this.state.userName}</h3>
-      <SignInForm onSignIn={this.signIn} />
-      <Table estimates={this.state.estimates} />
-      <Deck onSelect={this.selectCard} />
-    </div>
+    if (this.state.userName === null) {
+      return <div>
+        <SignInForm onSignIn={this.signIn} />
+      </div>
+    } else {
+      return <div>
+        <h3>Hello {this.state.userName}</h3>
+        <Table estimates={this.state.estimates} />
+        <Deck onSelect={this.selectCard} />
+      </div>
+    };
   }
 });
 
