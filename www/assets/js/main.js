@@ -123,6 +123,8 @@ var PokerApp = React.createClass({
   },
 
   componentDidMount: function(){
+    hoodie.appCache.start();
+
     hoodie.store.on('change', function() {
       this.setEstimates();
     }.bind(this));
