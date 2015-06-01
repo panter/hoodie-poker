@@ -34,13 +34,13 @@ var User = React.createClass({
 var PlayedCard = React.createClass({
   propTypes: {
     value: React.PropTypes.number,
-    name: React.PropTypes.string
+    userName: React.PropTypes.string
   },
 
   render: function(){
     return <div className="card-played">
       <Card value={this.props.value} />
-      <User name={this.props.name} />
+      <User name={this.props.userName} />
     </div>
   }
 });
@@ -62,7 +62,7 @@ var Table = React.createClass({
 
   render: function(){
     var playedCards = this.props.estimates.map(function(playedCard){
-      return <PlayedCard value={playedCard.value} name={playedCard.id} />
+      return <PlayedCard value={playedCard.value} userName={playedCard.id} />
     });
 
     return <div className="table">{playedCards}</div>
