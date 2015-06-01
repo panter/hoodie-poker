@@ -3,21 +3,6 @@
 // initialize Hoodie
 var hoodie = new Hoodie();
 
-// React
-
-// Account
-// =======
-
-var UserMenu = React.createClass({
-  render: function(){
-    return <div className="user-menu">
-      <LoginForm />
-      <SignupButton />
-      <LogoutButton />
-    </div>
-  }
-})
-
 // Poker
 // =====
 var Card = React.createClass({
