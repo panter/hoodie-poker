@@ -15,7 +15,8 @@ var Card = React.createClass({
   },
 
   render: function(){
-    return <div className="card" onClick={this.onClick}>{this.props.value}</div>
+    var value = this.props.isVisible ? this.props.value : '?'
+    return <div className="card" onClick={this.onClick}>{value}</div>
   }
 });
 
@@ -28,12 +29,13 @@ var User = React.createClass({
 var PlayedCard = React.createClass({
   propTypes: {
     value: React.PropTypes.number,
-    userName: React.PropTypes.string
+    userName: React.PropTypes.string,
+    isVisible: React.PropTypes.boolean
   },
 
   render: function(){
     return <div className="card-played">
-      <Card value={this.props.value} />
+      <Card value={this.props.value} isVisible={this.props.isVisible} />
       <User name={this.props.userName} />
     </div>
   }
@@ -42,7 +44,7 @@ var PlayedCard = React.createClass({
 var Deck = React.createClass({
   render: function(){
     var cards = [1, 2, 3, 4, 5, 8, 13, 21].map(function(cardValue){
-      return <Card value={cardValue} key={cardValue} onSelect={this.props.onSelect} />
+      return <Card value={cardValue} key={cardValue} onSelect={this.props.onSelect} isVisible={true} />
     }.bind(this));
 
     return <div className="deck">{cards}</div>
@@ -55,13 +57,16 @@ var Table = React.createClass({
   },
 
   propTypes: {
-    estimates: React.PropTypes.array
+    estimates: React.PropTypes.array,
+    currentUserName: React.PropTypes.string
   },
 
   render: function(){
     var playedCards = this.props.estimates.map(function(playedCard){
-      return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} />
-    });
+      var isVisible = this.props.currentUserName == playedCard.id;
+
+      return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} isVisible={isVisible} />
+    }.bind(this));
 
     return <div className="table">
       <div className="table-header">
@@ -93,13 +98,13 @@ var SignInForm = React.createClass({
 var PokerApp = React.createClass({
   getInitialState: function(){
     return {
-      userName: null,
+      currentUserName: null,
       estimates: []
     }
   },
 
   signIn: function(userName){
-    this.setState({userName: userName});
+    this.setState({currentUserName: userName});
 
     hoodie.store.add('estimates', {id: userName, value: null});
   },
@@ -111,7 +116,7 @@ var PokerApp = React.createClass({
   },
 
   selectCard: function(value){
-    hoodie.store.updateOrAdd('estimates', this.state.userName, {value: value})
+    hoodie.store.updateOrAdd('estimates', this.state.currentUserName, {value: value})
   },
 
   componentDidMount: function(){
@@ -125,14 +130,14 @@ var PokerApp = React.createClass({
   },
 
   render: function(){
-    if (this.state.userName === null) {
+    if (this.state.currentUserName === null) {
       return <div>
         <SignInForm onSignIn={this.signIn} />
       </div>
     } else {
       return <div>
-        <h3>Hello {this.state.userName}</h3>
-        <Table estimates={this.state.estimates} />
+        <h3>Hello {this.state.currentUserName}</h3>
+        <Table estimates={this.state.estimates} currentUserName={this.state.currentUserName} />
         <Deck onSelect={this.selectCard} />
       </div>
     };
