@@ -16,10 +16,6 @@ var DeckSelect = React.createClass({
 });
 
 var Card = React.createClass({
-  propTypes: {
-    value: React.PropTypes.number
-  },
-
   onClick: function(event){
     this.props.onSelect(this.props.value);
   },
@@ -40,7 +36,6 @@ var User = React.createClass({
 
 var PlayedCard = React.createClass({
   propTypes: {
-    value: React.PropTypes.number,
     userName: React.PropTypes.string
   },
 
