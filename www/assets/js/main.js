@@ -5,6 +5,16 @@ var hoodie = new Hoodie();
 
 // Poker
 // =====
+var DeckSelect = React.createClass({
+  onClick: function(event){
+    this.props.onSelect(this.props.value);
+  },
+
+  render: function(){
+    return <div onClick={this.onClick} className={this.props.className.join(' ')}>{this.props.value}</div>
+  }
+});
+
 var Card = React.createClass({
   propTypes: {
     value: React.PropTypes.number
@@ -15,14 +25,16 @@ var Card = React.createClass({
   },
 
   render: function(){
-    var value = this.props.isVisible ? this.props.value : '?'
-    return <div className="card" onClick={this.onClick}>{value}</div>
+    var value = this.props.isVisible ? this.props.value : <div className="spinner"></div>
+    return <td>
+      <div onClick={this.onClick}>{value}</div>
+    </td>
   }
 });
 
 var User = React.createClass({
   render: function(){
-    return <div className="card-name">{this.props.name}</div>
+    return <td>{this.props.name}</td>
   }
 });
 
@@ -33,17 +45,25 @@ var PlayedCard = React.createClass({
   },
 
   render: function(){
-    return <div className="card-played">
+    var classNames = [];
+    classNames.push(this.props.isMin ? 'is-extreme' : null);
+    classNames.push(this.props.isMax ? 'is-extreme' : null);
+
+    return <tr className={classNames.join(' ')}>
       <Card value={this.props.value} isVisible={this.props.isVisible} />
       <User name={this.props.userName} />
-    </div>
+    </tr>
   }
 });
 
 var Deck = React.createClass({
   render: function(){
-    var cards = [1, 2, 3, 4, 5, 8, 13, 21].map(function(cardValue){
-      return <Card value={cardValue} key={cardValue} onSelect={this.props.onSelect} isVisible={true} />
+    var cards = [1, 2, 3, 5, 8, 13, 21, '?'].map(function(cardValue, idx){
+      var classNames = ['deck-select'];
+      classNames.push(idx < 4 ? 'deck-select-upper' : 'deck-select-lower');
+      classNames.push(this.props.currentValue == cardValue ? 'is-selected' : null);
+
+      return <DeckSelect value={cardValue} key={cardValue} onSelect={this.props.onSelect} className={classNames} />
     }.bind(this));
 
     return <div className="deck">{cards}</div>
@@ -52,7 +72,7 @@ var Deck = React.createClass({
 
 var Table = React.createClass({
   restartRound: function(){
-    hoodie.store.updateAll('estimates', {value: null})
+    hoodie.store.updateAll('estimates', {value: null}).then(hoodie.remote.push)
   },
 
   propTypes: {
@@ -60,22 +80,47 @@ var Table = React.createClass({
     currentUserName: React.PropTypes.string,
   },
 
+  getMinValue: function(estimates) {
+    var min = Infinity;
+    estimates.forEach(function(estimate) {
+      if (min == '?') { return };
+      min = estimate.value < min ? estimate.value : min;
+    });
+
+    return min;
+  },
+
+  getMaxValue: function(estimates) {
+    var max = 0;
+    estimates.forEach(function(estimate) {
+      if (max == '?') { return };
+      max = estimate.value > max ? estimate.value : max;
+    });
+
+    return max;
+  },
+
   render: function(){
     var isFinished = this.props.estimates.every(function(playedCard){
       return playedCard.value > 0
     });
 
+    var minValue = this.getMinValue(this.props.estimates);
+    var maxValue = this.getMaxValue(this.props.estimates);
+
     var playedCards = this.props.estimates.map(function(playedCard){
       var isVisible = isFinished || this.props.currentUserName == playedCard.id;
+      var isMin = isFinished && playedCard.value == minValue;
+      var isMax = isFinished && playedCard.value == maxValue;
 
-      return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} isVisible={isVisible} />
+      return <PlayedCard value={playedCard.value} userName={playedCard.id} key={playedCard.id} isVisible={isVisible} isMin={isMin} isMax={isMax} />
     }.bind(this));
 
     return <div className="table">
       <div className="table-header">
         <button className="button-restart" onClick={this.restartRound}>Restart</button>
       </div>
-      <div>{playedCards}</div>
+      <table className="table-players">{playedCards}</table>
     </div>
   }
 });
@@ -109,17 +154,26 @@ var PokerApp = React.createClass({
   signIn: function(userName){
     this.setState({currentUserName: userName});
 
-    hoodie.store.add('estimates', {id: userName, value: null});
+    hoodie.store.add('estimates', {id: userName, value: null}).then(hoodie.remote.push);
   },
 
   setEstimates: function(){
     hoodie.store.findAll('estimates').then(function(allEstimates) {
-      this.setState({estimates: allEstimates});
+      var winner = allEstimates[0].value;
+      allEstimates.forEach(function(estimate) {
+        winner = winner === estimate.value ? winner : null
+      });
+
+      this.setState({
+        estimates: allEstimates,
+        winner: winner
+      });
     }.bind(this));
   },
 
   selectCard: function(value){
-    hoodie.store.updateOrAdd('estimates', this.state.currentUserName, {value: value})
+    hoodie.store.updateOrAdd('estimates', this.state.currentUserName, {value: value}).then(hoodie.remote.push);
+    this.setState({currentValue: value});
   },
 
   componentDidMount: function(){
@@ -141,9 +195,8 @@ var PokerApp = React.createClass({
       </div>
     } else {
       return <div>
-        <h3>Hello {this.state.currentUserName}</h3>
-        <Table estimates={this.state.estimates} currentUserName={this.state.currentUserName} />
-        <Deck onSelect={this.selectCard} />
+        <Table estimates={this.state.estimates} max={this.state.max} min={this.state.min} currentUserName={this.state.currentUserName} />
+        <Deck onSelect={this.selectCard} currentValue={this.state.currentValue} />
       </div>
     };
   }

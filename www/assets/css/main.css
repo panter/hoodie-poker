@@ -1,5 +1,12 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: sans-serif;
+  background: #3C3C3C;
 }
 
 .card {
@@ -40,27 +47,121 @@ body {
   transform: translateY(0px);
 }
 
-.deck, .table {
-  text-align: center;
+.deck {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
 }
 
-.deck {
-  padding-top: 25px;
-  border-top: 1px dotted #ccc;
+.deck:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.deck-select {
+  width: 25%;
+  box-sizing: border-box;
+  float: left;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  background: #939292;
+  padding: 25px 0;
+  border-right: 1px solid #bbb;
+}
+
+.deck-select.is-selected {
+  background: #1CE6F8;
+}
+
+.deck-select-upper {
+  font-size: 24px;
+  border-bottom: 1px solid #bbb;
+  line-height: 60px;
+}
+
+.deck-select-noborder {
+  border-right-width: 0;
+}
+
+.deck-select-lower {
+  font-size: 18px;
 }
 
 .table {
-  background: #417505;
-  padding: 25px 0 25px 0;
+  padding: 10% 20px;
 }
 
-.table-header {
-  text-align: right;
-  margin-right: 20px;
-  padding: 15px;
+.table-players {
+  color: #E0E0E0;
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.table-players tr td:last-child {
+  padding-left: 15px;
+}
+
+.table-players tr td:first-child {
+  text-align: center;
+}
+
+.is-current-user {
+  color: #1CE6F8;
+}
+
+.is-extreme {
+  color: #C145FF;
+}
+
+.is-between {
+  font-size: 20px;
+}
+
+.table-result {
+  text-align: center;
+  color: #E0E0E0;
+  margin-top: 15%;
+}
+
+.result {
+  font-size: 180px;
+  font-weight: bold;
 }
 
 .container {
-  width: 960px;
-  margin: 50px auto;
+  max-width: 560px;
+  margin: 0 auto;
+  height: 100%;
+}
+
+.spinner {
+  background: url(../img/spinner.svg);
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 30px;
+  width: 30px;
+  display: inline-block;
+  -webkit-animation: spin;
+  -webkit-animation-duration: 0.8s;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes spin {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
+}
+
+
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 18px;
+  border: 1px solid #1CE6F8;
+  color: #1CE6F8;
+  border-radius: 3px;
 }
