@@ -97,7 +97,7 @@ var Table = React.createClass({
 
   render: function(){
     var isFinished = this.props.estimates.every(function(playedCard){
-      return playedCard.value > 0
+      return playedCard.value
     });
 
     var minValue = this.getMinValue(this.props.estimates);
